@@ -1,15 +1,11 @@
 FROM php:5.6-apache
 
-# 更新源为archive.debian.org
-RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
-    -e 's|security.debian.org|archive.debian.org/debian-security|g' \
-    -e '/stretch-updates/d' /etc/apt/sources.list
+# Configure Debian Stretch archive repositories
+RUN echo "deb http://archive.debian.org/debian/ stretch main contrib non-free" > /etc/apt/sources.list \
+    && echo "deb http://archive.debian.org/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list
 
-# Update repository URLs and install dependencies
-RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
-    -e 's|security.debian.org|archive.debian.org/debian-security|g' \
-    -e '/stretch-updates/d' /etc/apt/sources.list \
-    && apt-get update --allow-insecure-repositories \
+# Install dependencies
+RUN apt-get update --allow-insecure-repositories \
     && apt-get install -y --allow-unauthenticated \
         libzip-dev \
         zip \
