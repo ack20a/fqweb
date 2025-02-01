@@ -1,5 +1,10 @@
 FROM php:5.6-apache
 
+# 更新源为archive.debian.org
+RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
+    -e 's|security.debian.org|archive.debian.org/debian-security|g' \
+    -e '/stretch-updates/d' /etc/apt/sources.list
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libzip-dev \
