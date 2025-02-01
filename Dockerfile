@@ -1,40 +1,32 @@
+# 使用PHP 5.6 Apache基础镜像
 FROM php:5.6-apache
 
-# Configure Debian Stretch archive repositories
-RUN echo "deb http://archive.debian.org/debian/ stretch main contrib non-free" > /etc/apt/sources.list \
-    && echo "deb http://archive.debian.org/debian-security/ stretch/updates main contrib non-free" >> /etc/apt/sources.list
+# 设置工作目录
+WORKDIR /var/www/html
 
-# Install dependencies
-RUN apt-get update --allow-insecure-repositories \
-    && apt-get install -y --allow-unauthenticated \
-        libzip-dev \
-        zip \
-        unzip \
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
     && docker-php-ext-install zip
 
-# Install Redis extension
+# 安装Redis扩展
 RUN pecl install redis-4.3.0 \
     && docker-php-ext-enable redis
 
-# Enable Apache rewrite module
+# 配置Apache
 RUN a2enmod rewrite
 
-# Copy application files
+# 复制项目文件
 COPY . /var/www/html/
 
-# Set permissions
+# 设置目录权限
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Configure Apache for URL rewriting
-RUN echo '<Directory /var/www/html>\n\
-    AllowOverride All\n\
-    </Directory>' >> /etc/apache2/apache2.conf
-
-# Create .htaccess file with rewrite rules
-RUN echo 'RewriteEngine On\n\
-RewriteRule ^(content|admin|key|login)$ /$1.php [L]' > /var/www/html/.htaccess
-
+# 暴露端口
 EXPOSE 80
 
+# 启动Apache
 CMD ["apache2-foreground"] 
