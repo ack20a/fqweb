@@ -5,11 +5,15 @@ RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
     -e 's|security.debian.org|archive.debian.org/debian-security|g' \
     -e '/stretch-updates/d' /etc/apt/sources.list
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    zip \
-    unzip \
+# Update repository URLs and install dependencies
+RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
+    -e 's|security.debian.org|archive.debian.org/debian-security|g' \
+    -e '/stretch-updates/d' /etc/apt/sources.list \
+    && apt-get update --allow-insecure-repositories \
+    && apt-get install -y --allow-unauthenticated \
+        libzip-dev \
+        zip \
+        unzip \
     && docker-php-ext-install zip
 
 # Install Redis extension
